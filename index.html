@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Estructura de Datos – Patricio Rojas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;--surface:#161b22;--surface2:#1c2330;
+  --border:#30363d;--text:#e6edf3;--muted:#7d8590;
+  --teal:#3fb97a;--amber:#e6a817;--blue:#58a6ff;
+  --purple:#a371f7;--coral:#f78166;
+}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;display:flex;flex-direction:column}
+
+/* TOP BAR */
+.topbar{height:48px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 1.2rem;gap:1rem;flex-shrink:0;z-index:10}
+.topbar-title{font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:700;color:var(--teal)}
+.topbar-sub{font-size:.75rem;color:var(--muted)}
+.topbar-gh{margin-left:auto;display:flex;align-items:center;gap:6px;background:none;border:1px solid var(--border);color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:.7rem;padding:5px 10px;border-radius:6px;cursor:pointer;text-decoration:none;transition:color .2s,border-color .2s}
+.topbar-gh:hover{color:var(--text);border-color:var(--text)}
+
+/* APP LAYOUT */
+.app{display:flex;flex:1;overflow:hidden}
+
+/* SIDEBAR */
+.sidebar{width:210px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:.5rem 0}
+.sidebar::-webkit-scrollbar{width:4px}.sidebar::-webkit-scrollbar-track{background:transparent}.sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.cat-header{padding:.5rem 1rem .3rem;font-family:'JetBrains Mono',monospace;font-size:.62rem;font-weight:700;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-top:.3rem}
+.ex-item{display:flex;align-items:center;gap:8px;padding:.45rem 1rem;cursor:pointer;transition:background .15s;border-left:2px solid transparent;position:relative}
+.ex-item:hover{background:var(--surface2)}
+.ex-item.active{background:var(--surface2);border-left-color:var(--item-color)}
+.ex-dot{width:7px;height:7px;border-radius:50%;background:var(--item-color);flex-shrink:0}
+.ex-label{font-size:.78rem;color:var(--muted);line-height:1.2;transition:color .15s}
+.ex-item:hover .ex-label,.ex-item.active .ex-label{color:var(--text)}
+.demo-badge{font-family:'JetBrains Mono',monospace;font-size:.55rem;background:var(--item-color);color:#000;padding:1px 5px;border-radius:3px;font-weight:700;opacity:.85;flex-shrink:0}
+
+/* MAIN */
+.main{flex:1;display:flex;overflow:hidden}
+
+/* CONTENT */
+.content{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.content-top{padding:1.2rem 1.5rem .8rem;border-bottom:1px solid var(--border);flex-shrink:0}
+.content-top h2{font-size:1.2rem;font-weight:800;margin-bottom:.3rem}
+.content-top .short-desc{font-size:.82rem;color:var(--muted);margin-bottom:.6rem}
+.content-top .full-desc{font-size:.82rem;color:var(--muted);line-height:1.6;max-width:600px}
+.demo-controls{display:flex;gap:.5rem;margin-top:.8rem;flex-wrap:wrap}
+.btn{border:none;padding:6px 18px;border-radius:6px;font-family:'Syne',sans-serif;font-size:.8rem;font-weight:700;cursor:pointer;transition:opacity .2s}
+.btn:hover{opacity:.85}
+.btn-primary{background:var(--teal);color:#0d1117}
+.btn-secondary{background:var(--surface2);color:var(--muted);border:1px solid var(--border)}
+.btn-secondary:hover{color:var(--text)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.demo-status{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--muted);margin-top:.5rem;min-height:1.2em}
+
+/* DEMO AREA */
+.demo-area{flex:1;overflow-y:auto;padding:1.2rem 1.5rem;display:flex;align-items:flex-start}
+.demo-area::-webkit-scrollbar{width:4px}.demo-area::-webkit-scrollbar-track{background:transparent}.demo-area::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+/* CODE SIDE */
+.code-side{width:380px;flex-shrink:0;border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.code-header{display:flex;align-items:center;justify-content:space-between;padding:.6rem 1rem;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--surface)}
+.code-header-left{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--muted)}
+.code-filename-tag{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--text);background:var(--surface2);border:1px solid var(--border);padding:2px 8px;border-radius:4px}
+.code-actions{display:flex;gap:6px}
+.btn-xs{background:none;border:1px solid var(--border);color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:.65rem;padding:3px 8px;border-radius:5px;cursor:pointer;transition:color .2s,border-color .2s;text-decoration:none;display:inline-flex;align-items:center;gap:3px}
+.btn-xs:hover{color:var(--text);border-color:var(--text)}
+.code-body{flex:1;overflow:auto}
+.code-body::-webkit-scrollbar{width:4px}.code-body::-webkit-scrollbar-track{background:transparent}.code-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.code-loading{display:flex;align-items:center;justify-content:center;height:100%;font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--muted)}
+pre{margin:0!important;height:100%}
+pre code.hljs{font-family:'JetBrains Mono',monospace!important;font-size:.75rem!important;line-height:1.65!important;padding:1rem!important;background:#0d1117!important;height:100%}
+
+/* === DEMO STYLES === */
+
+/* Duplicados */
+.arr-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.arr-box{width:44px;height:44px;border-radius:8px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:.85rem;font-weight:700;transition:background .3s,border-color .3s,color .3s;background:var(--surface)}
+.arr-box.current{border-color:var(--amber);background:#4a3810;color:var(--amber)}
+.arr-box.unique{border-color:var(--teal);background:#1a4d35;color:var(--teal)}
+.arr-box.dup{border-color:var(--coral);background:#4a1e18;color:var(--coral);text-decoration:line-through}
+.arr-box.done{border-color:var(--border);background:var(--surface2);color:var(--muted)}
+.arr-label{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--muted);margin:1rem 0 .4rem}
+.result-row{display:flex;gap:6px;flex-wrap:wrap;min-height:44px;align-items:center}
+
+/* Cola Circular */
+.circ-wrapper{position:relative;width:300px;height:300px;flex-shrink:0}
+.circ-info{margin-left:1.5rem;display:flex;flex-direction:column;gap:.6rem}
+.circ-stat{font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--muted)}
+.circ-stat span{color:var(--text);font-weight:700}
+.circ-input{display:flex;gap:.5rem;align-items:center;margin-top:auto}
+.circ-input input{background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.8rem;padding:5px 10px;border-radius:6px;width:70px;outline:none}
+.circ-input input:focus{border-color:var(--teal)}
+
+/* BST */
+.bst-svg-wrap{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.5rem}
+.bst-insert-list{font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--muted);margin-top:.8rem}
+.bst-insert-list span.done-num{color:var(--teal)}
+.bst-insert-list span.next-num{color:var(--amber);font-weight:700}
+.bst-insert-list span.pending-num{color:var(--muted)}
+
+/* Hanoi */
+.hanoi-wrap{display:flex;flex-direction:column;align-items:flex-start;gap:.8rem}
+.hanoi-move-log{font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--muted);max-height:100px;overflow-y:auto;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:.5rem .8rem;width:100%;max-width:520px}
+.hanoi-move-log .move-item{padding:1px 0}
+.hanoi-move-log .move-item.current{color:var(--amber)}
+.hanoi-move-log .move-item.done-move{color:var(--teal)}
+
+/* No-demo state */
+.no-demo{display:flex;align-items:center;gap:1rem;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:1.2rem 1.5rem;color:var(--muted);font-size:.85rem;max-width:480px}
+.no-demo-icon{font-size:2rem}
+
+@media(max-width:900px){
+  .code-side{width:300px}
+  .sidebar{width:170px}
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-title">⚡ Estructura de Datos</div>
+  <div class="topbar-sub">Patricio Rojas · UAZ · 2025</div>
+  <a class="topbar-gh" href="https://github.com/PatricioRojasN1/ESTRUCTURA_DE_DATOS" target="_blank">
+    <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+    GitHub
+  </a>
+</div>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="content">
+      <div class="content-top" id="content-top"></div>
+      <div class="demo-area" id="demo-area"></div>
+    </div>
+    <div class="code-side">
+      <div class="code-header">
+        <span class="code-header-left">Código Python</span>
+        <span class="code-filename-tag" id="code-filename">—</span>
+        <div class="code-actions">
+          <button class="btn-xs" id="copy-btn" onclick="copyCode()">📋 Copiar</button>
+          <a class="btn-xs" id="gh-link" href="#" target="_blank">↗ Ver</a>
+        </div>
+      </div>
+      <div class="code-body" id="code-body"><div class="code-loading">Selecciona un ejercicio</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const REPO = 'PatricioRojasN1/ESTRUCTURA_DE_DATOS';
+const RAW  = 'https://raw.githubusercontent.com/' + REPO + '/main/';
+
+const EXERCISES = [
+  // ARREGLOS
+  { id:'dup',  cat:'ARREGLOS',  color:'#3fb97a', title:'Arreglo sin duplicados',
+    short:'Elimina elementos repetidos de un arreglo ordenado de forma creciente',
+    desc:'Dado un arreglo con duplicados, se eliminan usando dos métodos: uno con lista auxiliar (not in) y otro iterando en reversa con pop(). Se compara el tamaño original vs el resultado.',
+    file:'PRACTICA1/ElementosRepetidos.py', demo:'duplicados' },
+  { id:'cad',  cat:'ARREGLOS',  color:'#3fb97a', title:'Cadena de caracteres',
+    short:'Cuenta la frecuencia de cada letra en una cadena',
+    desc:'Recorre el alfabeto completo y cuenta cuántas veces aparece cada letra en "Parangaricutirimicuaro" ignorando mayúsculas. Implementado operando directamente sobre el string.',
+    file:'PRACTICA1/cadenas.py', demo:null },
+  { id:'cada', cat:'ARREGLOS',  color:'#3fb97a', title:'Cadena como arreglo',
+    short:'Mismo conteo de letras pero convirtiendo la cadena a lista primero',
+    desc:'Variante del ejercicio anterior: convierte la cadena a lista de caracteres con list() antes de contar frecuencias. Demuestra cómo representar strings como arreglos.',
+    file:'PRACTICA1/cadenasarreglo.py', demo:null },
+  { id:'cal',  cat:'ARREGLOS',  color:'#3fb97a', title:'Calificaciones finales',
+    short:'Estadísticas de un grupo: promedio, aprobados y reprobados',
+    desc:'Dado un arreglo de 10 calificaciones, calcula el promedio general, cuenta aprobados (≥7) y reprobados, y muestra sus porcentajes respectivos.',
+    file:'PRACTICA1/calificaciones.py', demo:null },
+  { id:'cos',  cat:'ARREGLOS',  color:'#3fb97a', title:'Toneladas de cereales',
+    short:'Análisis de cosechas mensuales vs el promedio anual',
+    desc:'Dado un arreglo con 12 valores de cosecha mensual, calcula el promedio anual e identifica cuántos meses estuvieron por encima y cuántos por debajo del promedio.',
+    file:'PRACTICA1/Cosecha1.py', demo:null },
+  // MATRICES
+  { id:'mat',  cat:'MATRICES',  color:'#58a6ff', title:'Multiplicación de matrices',
+    short:'Producto de dos matrices 3×3 con ciclos anidados, sin librerías',
+    desc:'Multiplica dos matrices 3×3 usando tres ciclos for anidados (i, j, k) sin ninguna librería externa. El resultado se acumula en una matriz C inicializada en ceros.',
+    file:'PRACTICA2/Matrices.py', demo:null },
+  { id:'asi',  cat:'MATRICES',  color:'#58a6ff', title:'Sala de cine',
+    short:'Sistema de reserva de asientos en sala 6×6 con matriz binaria',
+    desc:'Modela una sala 6×6 con una matriz binaria (0=libre, 1=reservado). Implementa reservar(), liberar() y consultar() con validaciones, y calcula total de reservados y fila con más asientos ocupados.',
+    file:'PRACTICA2/MatrizAsientos.ipynb', demo:null },
+  { id:'coo',  cat:'MATRICES',  color:'#58a6ff', title:'Coordenadas en matriz',
+    short:'Encuentra todas las posiciones de un valor en una matriz 6×6',
+    desc:'Busca un valor en una matriz 6×6 y retorna lista de coordenadas (i,j) donde aparece. Implementado primero sin funciones y luego refactorizado con función reutilizable.',
+    file:'PRACTICA2/CoordenadasMatriz.ipynb', demo:null },
+  { id:'df',   cat:'MATRICES',  color:'#58a6ff', title:'DataFrame estadístico',
+    short:'Análisis estadístico manual sobre dataset de viviendas con Pandas',
+    desc:'Carga 21,613 registros de precios de casas. Implementa desde cero media(), moda(), varianza() y desviacion_estandar() y las aplica a 9 columnas numéricas del DataFrame.',
+    file:'PRACTICA2/dataframe.ipynb', demo:null },
+  // COLAS
+  { id:'col',  cat:'COLAS',     color:'#a371f7', title:'Implementación básica de colas',
+    short:'Cola con listas de Python: retiros y depósitos bancarios',
+    desc:'Implementa cola con listas Python (enqueue, dequeue, peek, is_empty, size). La aplica a un sistema bancario donde una cola de saldos procesa retiros y depósitos en orden FIFO.',
+    file:'PRACTICA3/colas.py', demo:null },
+  { id:'dq',   cat:'COLAS',     color:'#a371f7', title:'Terminal de banco (deque)',
+    short:'Cola con collections.deque + historial de movimientos',
+    desc:'Usa collections.deque para la cola. Agrega un historial que guarda el saldo original antes de cada operación, permitiendo auditar todos los movimientos realizados.',
+    file:'PRACTICA3/deque.py', demo:null },
+  { id:'bic',  cat:'COLAS',     color:'#a371f7', title:'Bicola (Deque)',
+    short:'Bicola circular implementada desde cero con clase propia',
+    desc:'Clase Bicola con arreglo estático: enqueue (por derecha), enqueue_front (por izquierda), dequeue (por izquierda), dequeue_back (por derecha). Aplicada al escenario bancario.',
+    file:'PRACTICA3/Bicolas.py', demo:null },
+  { id:'tar',  cat:'COLAS',     color:'#a371f7', title:'Reintento de tareas',
+    short:'Scheduler con bicola: tareas fallidas regresan al final de la cola',
+    desc:'Simula un scheduler de tareas con collections.deque. Las tareas se sacan por la izquierda; si fallan, regresan por la derecha con un fallo menos. Muestra el estado tras cada turno.',
+    file:'PRACTICA3/Tareas.py', demo:null },
+  // COLA CIRCULAR
+  { id:'ccb',  cat:'COLA CIRCULAR', color:'#e6a817', title:'Cola circular (clase)',
+    short:'Implementación base de cola circular con arreglo estático',
+    desc:'Clase ColaCircular con arreglo de capacidad fija. Usa índices frente y final con módulo (%) para reutilizar los slots. Incluye encolar, desencolar, ver_frente, esta_vacia y esta_llena.',
+    file:'PRACTICA4/Colacircular.py', demo:null },
+  { id:'cce',  cat:'COLA CIRCULAR', color:'#e6a817', title:'Cola circular con turnos',
+    short:'Sistema de turnos que demuestra la reutilización del buffer circular',
+    desc:'Ejercicio práctico: inserta 5 turnos, atiende 2 y agrega 2 más, demostrando visualmente cómo el buffer circular reutiliza los slots liberados sin desperdiciar espacio.',
+    file:'PRACTICA4/CircularEjercicio.py', demo:'colaCircular' },
+  // PILAS
+  { id:'pil',  cat:'PILAS',     color:'#f78166', title:'Clase Pila',
+    short:'Pila LIFO con clase propia aplicada a registro de precios',
+    desc:'Implementa pila con clase propia (push, pop, peek, isEmpty, size) sobre lista Python. La aplica cargando 12 precios de dulces y consultando el elemento en la cima (más reciente).',
+    file:'PRACTICA5/Pila.py', demo:'pila' },
+  // ÁRBOLES Y GRAFOS
+  { id:'arb',  cat:'ÁRBOLES Y GRAFOS', color:'#3fb97a', title:'Árbol binario de búsqueda',
+    short:'BST con inserción paso a paso y exportación como JSON',
+    desc:'BST con clase NodoArbol completa (padre, hijos, helpers). Inserta lista con duplicados (ignorados), exporta estructura como diccionario JSON y obtiene lista ordenada sin repetidos vía recorrido inorden.',
+    file:'PRACTICA6/Arboles.py', demo:'bst' },
+  { id:'arbt', cat:'ÁRBOLES Y GRAFOS', color:'#3fb97a', title:'Recorridos de árbol',
+    short:'BST con los tres recorridos: preorden, inorden y postorden',
+    desc:'BST simplificado que inserta [3,1,4,2,5] y muestra los tres recorridos clásicos, marcando explícitamente los hijos None para visualizar la forma del árbol en cada recorrido.',
+    file:'PRACTICA6/ArbolesBinarios.py', demo:null },
+  { id:'bfs',  cat:'ÁRBOLES Y GRAFOS', color:'#3fb97a', title:'BFS – Grafos',
+    short:'Búsqueda en Anchura recursiva sobre grafo representado como diccionario',
+    desc:'BFS implementado recursivamente sobre un grafo de 7 nodos (diccionario de listas de adyacencia). Muestra en cada paso el nodo procesado, el estado de la cola y los nodos visitados.',
+    file:'PRACTICA6/Grafos.py', demo:null },
+  { id:'dij',  cat:'ÁRBOLES Y GRAFOS', color:'#3fb97a', title:'Dijkstra',
+    short:'Camino mínimo con min-heap sobre grafo de 8 vértices',
+    desc:'Implementación de Dijkstra con heapq. Imprime tabla con costo, nodo padre y ruta completa reconstruida desde el vértice origen hasta cada destino. Complejidad O((V+E) log V).',
+    file:'PRACTICA6/Dijkstra.py', demo:null },
+  { id:'pri',  cat:'ÁRBOLES Y GRAFOS', color:'#3fb97a', title:'Prim (MST)',
+    short:'Árbol de Expansión Mínima con algoritmo de Prim y min-heap',
+    desc:'Obtiene el MST de un grafo de 6 nodos usando Prim con heapq. Retorna la lista de aristas seleccionadas con su peso. Complejidad O(E log V).',
+    file:'PRACTICA6/Prims.py', demo:null },
+  { id:'han',  cat:'ÁRBOLES Y GRAFOS', color:'#3fb97a', title:'Torre de Hanói',
+    short:'Solución recursiva con animación paso a paso',
+    desc:'Solución recursiva al problema de las Torres de Hanói con N=3 discos (7 movimientos). Visualiza cada disco moviéndose entre las torres A, B y C en la secuencia óptima.',
+    file:'PRACTICA6/TorreHanoi.py', demo:'hanoi' },
+];
+
+// ─── SIDEBAR ────────────────────────────────────────
+function buildSidebar() {
+  const sb = document.getElementById('sidebar');
+  const cats = [...new Set(EXERCISES.map(e => e.cat))];
+  let html = '';
+  cats.forEach(cat => {
+    html += `<div class="cat-header">${cat}</div>`;
+    EXERCISES.filter(e => e.cat === cat).forEach(e => {
+      html += `<div class="ex-item" id="item-${e.id}" style="--item-color:${e.color}" onclick="selectEx('${e.id}')">
+        <div class="ex-dot"></div>
+        <div class="ex-label">${e.title}</div>
+        ${e.demo ? '<div class="demo-badge">DEMO</div>' : ''}
+      </div>`;
+    });
+  });
+  sb.innerHTML = html;
+}
+
+// ─── SELECT EXERCISE ─────────────────────────────────
+let currentEx = null;
+let codeText = '';
+
+function selectEx(id) {
+  document.querySelectorAll('.ex-item').forEach(el => el.classList.remove('active'));
+  const el = document.getElementById('item-' + id);
+  if (el) el.classList.add('active');
+
+  const ex = EXERCISES.find(e => e.id === id);
+  if (!ex) return;
+  currentEx = ex;
+
+  renderContentTop(ex);
+  renderDemoArea(ex);
+  loadCode(ex);
+}
+
+// ─── CONTENT TOP ─────────────────────────────────────
+function renderContentTop(ex) {
+  const el = document.getElementById('content-top');
+  let controls = '';
+  if (ex.demo) {
+    const demoLabel = ex.demo === 'duplicados' ? 'Siguiente paso' :
+                      ex.demo === 'colaCircular' ? null :
+                      ex.demo === 'hanoi'   ? 'Comenzar' :
+                      ex.demo === 'bst'     ? 'Insertar siguiente' :
+                      ex.demo === 'pila'    ? 'Push elemento' : 'Siguiente';
+    if (demoLabel) {
+      controls = `<div class="demo-controls">
+        <button class="btn btn-secondary" onclick="resetDemo()">Reiniciar</button>
+        <button class="btn btn-primary" id="main-btn" onclick="stepDemo()">${demoLabel}</button>
+      </div>`;
+    } else {
+      controls = `<div class="demo-controls">
+        <button class="btn btn-secondary" onclick="resetDemo()">Reiniciar</button>
+      </div>`;
+    }
+  }
+  el.innerHTML = `
+    <h2>${ex.title}</h2>
+    <div class="short-desc">${ex.short}</div>
+    <div class="full-desc">${ex.desc}</div>
+    ${controls}
+    <div class="demo-status" id="demo-status"></div>
+  `;
+}
+
+// ─── DEMO AREA ────────────────────────────────────────
+function renderDemoArea(ex) {
+  const area = document.getElementById('demo-area');
+  area.innerHTML = '';
+  if (!ex.demo) {
+    area.innerHTML = `<div class="no-demo"><div class="no-demo-icon">💻</div><div>El código de este ejercicio se muestra en el panel derecho. Explora la lógica de implementación línea por línea.</div></div>`;
+    return;
+  }
+  // Each demo initializes itself
+  DEMO_INIT[ex.demo](area);
+}
+
+// ─── CODE PANEL ───────────────────────────────────────
+function loadCode(ex) {
+  const fname = ex.file.split('/').pop();
+  document.getElementById('code-filename').textContent = fname;
+  document.getElementById('gh-link').href = 'https://github.com/' + REPO + '/blob/main/' + ex.file;
+  document.getElementById('copy-btn').textContent = '📋 Copiar';
+  const body = document.getElementById('code-body');
+  body.innerHTML = '<div class="code-loading">Cargando código...</div>';
+
+  fetch(RAW + ex.file)
+    .then(r => r.text())
+    .then(code => {
+      let src = code;
+      if (fname.endsWith('.ipynb')) {
+        try {
+          const nb = JSON.parse(code);
+          src = nb.cells.filter(c => c.cell_type === 'code')
+            .map(c => Array.isArray(c.source) ? c.source.join('') : c.source)
+            .join('\n\n# ─────────────────────\n\n');
+        } catch(e) {}
+      }
+      const block = document.createElement('code');
+      block.className = 'language-python';
+      block.textContent = src;
+      const pre = document.createElement('pre');
+      pre.appendChild(block);
+      body.innerHTML = '';
+      body.appendChild(pre);
+      hljs.highlightElement(block);
+      codeText = src;
+    })
+    .catch(() => { body.innerHTML = '<div class="code-loading">Error al cargar</div>'; });
+}
+
+function copyCode() {
+  if (!codeText) return;
+  navigator.clipboard.writeText(codeText).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = '✓ Copiado';
+    setTimeout(() => btn.textContent = '📋 Copiar', 1500);
+  });
+}
+
+function setStatus(msg) {
+  const el = document.getElementById('demo-status');
+  if (el) el.textContent = msg;
+}
+
+// ─────────────────────────────────────────────────────
+// DEMOS
+// ─────────────────────────────────────────────────────
+let demoState = {};
+
+function resetDemo() { if (currentEx && currentEx.demo) DEMO_INIT[currentEx.demo](document.getElementById('demo-area')); }
+function stepDemo()  { if (currentEx && currentEx.demo && DEMO_STEP[currentEx.demo]) DEMO_STEP[currentEx.demo](); }
+
+const DEMO_INIT = {};
+const DEMO_STEP = {};
+
+// ─── DEMO: DUPLICADOS ────────────────────────────────
+DEMO_INIT.duplicados = function(area) {
+  const arr = [1,2,4,4,4,5,7,9,11,11,13,14,15,16,16];
+  demoState.dup = { arr, step:-1, result:[], seen:{} };
+  area.innerHTML = `
+    <div>
+      <div class="arr-label">Arreglo original:</div>
+      <div class="arr-row" id="dup-orig"></div>
+      <div class="arr-label" style="margin-top:1.2rem">Resultado sin duplicados:</div>
+      <div class="result-row" id="dup-result"></div>
+    </div>`;
+  renderDup();
+  setStatus('Presiona "Siguiente paso" para analizar elemento por elemento.');
+};
+
+function renderDup() {
+  const s = demoState.dup;
+  const orig = document.getElementById('dup-orig');
+  const res  = document.getElementById('dup-result');
+  if (!orig) return;
+  orig.innerHTML = s.arr.map((v,i) => {
+    let cls = '';
+    if (i < s.step) cls = s.seen[v] === i ? 'unique' : 'dup';
+    else if (i === s.step) cls = 'current';
+    return `<div class="arr-box ${cls}">${v}</div>`;
+  }).join('');
+  res.innerHTML = s.result.length
+    ? s.result.map(v => `<div class="arr-box unique">${v}</div>`).join('')
+    : '<span style="font-family:JetBrains Mono,monospace;font-size:.75rem;color:var(--muted)">—</span>';
+}
+
+DEMO_STEP.duplicados = function() {
+  const s = demoState.dup;
+  s.step++;
+  if (s.step >= s.arr.length) {
+    setStatus('✅ Listo — ' + s.result.length + ' elementos únicos de ' + s.arr.length + ' originales.');
+    const btn = document.getElementById('main-btn');
+    if (btn) btn.disabled = true;
+    renderDup(); return;
+  }
+  const v = s.arr[s.step];
+  if (s.seen[v] === undefined) {
+    s.seen[v] = s.step;
+    s.result.push(v);
+    setStatus(`Elemento ${v}: no visto antes → se agrega al resultado.`);
+  } else {
+    setStatus(`Elemento ${v}: ya existe en posición ${s.seen[v]+1} → se descarta.`);
+  }
+  renderDup();
+};
+
+// ─── DEMO: COLA CIRCULAR ─────────────────────────────
+DEMO_INIT.colaCircular = function(area) {
+  demoState.cc = { cap:6, slots:Array(6).fill(null), head:-1, tail:-1, size:0, nextVal:1 };
+  area.innerHTML = `
+    <div style="display:flex;align-items:center;gap:2rem;flex-wrap:wrap">
+      <svg id="cc-svg" width="260" height="260" viewBox="-10 -10 270 270"></svg>
+      <div class="circ-info">
+        <div class="circ-stat">Tamaño: <span id="cc-size">0</span> / 6</div>
+        <div class="circ-stat">Frente (head): <span id="cc-head">—</span></div>
+        <div class="circ-stat">Final (tail): <span id="cc-tail">—</span></div>
+        <div class="circ-input" style="margin-top:.8rem;flex-direction:column;align-items:flex-start;gap:.4rem">
+          <div style="display:flex;gap:.5rem">
+            <input id="cc-inp" type="number" value="1" min="0" max="99" placeholder="val"/>
+            <button class="btn btn-primary" style="padding:5px 12px;font-size:.75rem" onclick="ccEnqueue()">Encolar</button>
+          </div>
+          <button class="btn btn-secondary" style="padding:5px 12px;font-size:.75rem" onclick="ccDequeue()">Desencolar</button>
+        </div>
+      </div>
+    </div>`;
+  renderCC();
+  setStatus('Encola y desencola elementos para ver cómo se reutiliza el buffer circular.');
+};
+
+function renderCC() {
+  const s = demoState.cc;
+  const svg = document.getElementById('cc-svg');
+  if (!svg) return;
+  const cx=125, cy=125, r=95, nr=22;
+  const colors = ['#3fb97a','#58a6ff','#a371f7','#e6a817','#f78166','#3fb97a'];
+  let html = '';
+  for (let i=0;i<6;i++){
+    const angle = (i/6)*2*Math.PI - Math.PI/2;
+    const x = cx + r*Math.cos(angle), y = cy + r*Math.sin(angle);
+    const occupied = s.slots[i] !== null;
+    const isHead = i === s.head, isTail = i === s.tail && s.size > 0;
+    const fill = occupied ? '#1a4d35' : '#1c2330';
+    const stroke = occupied ? '#3fb97a' : '#30363d';
+    html += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${nr}" fill="${fill}" stroke="${stroke}" stroke-width="2"/>`;
+    html += `<text x="${x.toFixed(1)}" y="${(y+1).toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-family="JetBrains Mono,monospace" font-size="13" font-weight="bold" fill="${occupied?'#3fb97a':'#484f58'}">${s.slots[i]!==null?s.slots[i]:i}</text>`;
+    if (isHead && isTail) {
+      html += `<text x="${(x+nr+4).toFixed(1)}" y="${y.toFixed(1)}" font-family="JetBrains Mono,monospace" font-size="9" fill="#e6a817">H/T</text>`;
+    } else if (isHead) {
+      html += `<text x="${(x+nr+4).toFixed(1)}" y="${y.toFixed(1)}" font-family="JetBrains Mono,monospace" font-size="9" fill="#58a6ff">H</text>`;
+    } else if (isTail) {
+      html += `<text x="${(x+nr+4).toFixed(1)}" y="${y.toFixed(1)}" font-family="JetBrains Mono,monospace" font-size="9" fill="#f78166">T</text>`;
+    }
+  }
+  svg.innerHTML = html;
+  document.getElementById('cc-size').textContent = s.size;
+  document.getElementById('cc-head').textContent = s.head >= 0 ? `slot ${s.head}` : '—';
+  document.getElementById('cc-tail').textContent = s.size > 0 ? `slot ${s.tail}` : '—';
+}
+
+function ccEnqueue() {
+  const s = demoState.cc;
+  const inp = document.getElementById('cc-inp');
+  const val = parseInt(inp ? inp.value : s.nextVal);
+  if (isNaN(val)) { setStatus('⚠ Ingresa un número válido.'); return; }
+  if (s.size === s.cap) { setStatus('⚠ Cola circular llena — desencola primero.'); return; }
+  if (s.size === 0) { s.head = 0; s.tail = 0; }
+  else s.tail = (s.tail + 1) % s.cap;
+  s.slots[s.tail] = val;
+  s.size++;
+  s.nextVal = val + 1;
+  if (inp) inp.value = s.nextVal;
+  setStatus(`✅ Encolado ${val} en slot ${s.tail}. Tamaño: ${s.size}/6`);
+  renderCC();
+}
+
+function ccDequeue() {
+  const s = demoState.cc;
+  if (s.size === 0) { setStatus('⚠ Cola circular vacía.'); return; }
+  const val = s.slots[s.head];
+  s.slots[s.head] = null;
+  if (s.size === 1) { s.head = -1; s.tail = -1; }
+  else s.head = (s.head + 1) % s.cap;
+  s.size--;
+  setStatus(`🔁 Desencolado ${val} del slot. Head ahora en ${s.head >= 0 ? 'slot '+s.head : '—'}. Slot liberado para reutilizar.`);
+  renderCC();
+}
+
+// ─── DEMO: PILA ──────────────────────────────────────
+DEMO_INIT.pila = function(area) {
+  const items = [11890.0,12500.5,13010.35,13650.8,13999.0,14100.0,14780.4,14999.99,15120.0,15550.75,15800.0,16250.25];
+  demoState.pil = { items, stack:[], idx:0 };
+  area.innerHTML = `
+    <div>
+      <div class="arr-label">Pila (LIFO) — precios de dulces:</div>
+      <div style="display:flex;gap:1.5rem;margin-top:.5rem;flex-wrap:wrap">
+        <div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--muted);margin-bottom:.3rem">⬆ TOP</div>
+          <div id="pil-stack" style="display:flex;flex-direction:column-reverse;gap:4px;min-height:200px"></div>
+          <div style="width:200px;height:3px;background:var(--teal);border-radius:2px;margin-top:4px"></div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--muted);margin-top:3px">⬇ BASE</div>
+        </div>
+        <div id="pil-queue" style="display:flex;flex-direction:column;gap:4px">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--muted);margin-bottom:.3rem">Pendientes:</div>
+        </div>
+      </div>
+    </div>`;
+  renderPila();
+  setStatus('Presiona "Push elemento" para agregar precios a la pila.');
+};
+
+function renderPila() {
+  const s = demoState.pil;
+  const stackEl = document.getElementById('pil-stack');
+  const queueEl = document.getElementById('pil-queue');
+  if (!stackEl) return;
+  stackEl.innerHTML = s.stack.map((v,i) => {
+    const isTop = i === s.stack.length-1;
+    return `<div style="width:200px;padding:6px 10px;border-radius:6px;background:${isTop?'#1a4d35':'#1c2330'};border:1px solid ${isTop?'#3fb97a':'#30363d'};font-family:'JetBrains Mono',monospace;font-size:.75rem;color:${isTop?'#3fb97a':'#e6edf3'};display:flex;justify-content:space-between">
+      <span>${isTop?'→ ':''}\$${v.toLocaleString()}</span>${isTop?'<span style="font-size:.65rem;color:#3fb97a">peek()</span>':''}
+    </div>`;
+  }).join('');
+  const pending = s.items.slice(s.idx);
+  if (queueEl.children.length <= 1) {
+    queueEl.innerHTML = '<div style="font-family:\'JetBrains Mono\',monospace;font-size:.68rem;color:var(--muted);margin-bottom:.3rem">Pendientes:</div>';
+  }
+  queueEl.innerHTML = '<div style="font-family:\'JetBrains Mono\',monospace;font-size:.68rem;color:var(--muted);margin-bottom:.3rem">Pendientes:</div>'
+    + pending.map(v=>`<div style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--muted);padding:2px 0">\$${v.toLocaleString()}</div>`).join('');
+}
+
+DEMO_STEP.pila = function() {
+  const s = demoState.pil;
+  if (s.idx >= s.items.length) { setStatus('✅ Todos los elementos en la pila. peek() = $' + s.stack[s.stack.length-1]); return; }
+  const val = s.items[s.idx];
+  s.stack.push(val);
+  s.idx++;
+  setStatus(`push($${val.toLocaleString()}) → tamaño: ${s.stack.length} | peek(): $${s.stack[s.stack.length-1].toLocaleString()}`);
+  renderPila();
+  if (s.idx >= s.items.length) { const b=document.getElementById('main-btn'); if(b) b.textContent='Ver peek()'; }
+};
+
+// ─── DEMO: BST ────────────────────────────────────────
+DEMO_INIT.bst = function(area) {
+  const seq = [3,1,4,2,5];
+  demoState.bst = { seq, step:0, nodes:{}, newNode:null };
+  area.innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:.8rem">
+      <div class="bst-svg-wrap">
+        <svg id="bst-svg" width="460" height="200" viewBox="0 0 460 200"></svg>
+      </div>
+      <div class="bst-insert-list" id="bst-seq"></div>
+    </div>`;
+  renderBST();
+  setStatus('Presiona "Insertar siguiente" para agregar nodos al árbol.');
+};
+
+function bstInsert(root, val) {
+  if (!root) return { val, left:null, right:null };
+  if (val < root.val) root.left  = bstInsert(root.left,  val);
+  else if (val > root.val) root.right = bstInsert(root.right, val);
+  return root;
+}
+
+function computeBSTPos(root) {
+  let idx = 0;
+  const pos = {};
+  function inorder(n, depth) {
+    if (!n) return;
+    inorder(n.left, depth+1);
+    pos[n.val] = { xi: idx++, depth };
+    inorder(n.right, depth+1);
+  }
+  inorder(root, 0);
+  return pos;
+}
+
+function renderBST() {
+  const s = demoState.bst;
+  const svg = document.getElementById('bst-svg');
+  const seqEl = document.getElementById('bst-seq');
+  if (!svg) return;
+
+  // Build tree from sequence so far
+  let root = null;
+  const inserted = s.seq.slice(0, s.step);
+  inserted.forEach(v => { root = bstInsert(root, v); });
+
+  let html = '';
+  if (root) {
+    const pos = computeBSTPos(root);
+    const count = Object.keys(pos).length;
+    const spacing = Math.min(88, 420 / (count + 1));
+    const margin  = (460 - (count-1)*spacing) / 2;
+    const lvlH    = 60;
+
+    // Draw edges first
+    function drawEdges(n) {
+      if (!n) return;
+      const px = margin + pos[n.val].xi * spacing;
+      const py = 30 + pos[n.val].depth * lvlH;
+      if (n.left) {
+        const cx = margin + pos[n.left.val].xi * spacing;
+        const cy = 30 + pos[n.left.val].depth * lvlH;
+        html += `<line x1="${px}" y1="${py}" x2="${cx}" y2="${cy}" stroke="#30363d" stroke-width="2"/>`;
+        drawEdges(n.left);
+      }
+      if (n.right) {
+        const cx = margin + pos[n.right.val].xi * spacing;
+        const cy = 30 + pos[n.right.val].depth * lvlH;
+        html += `<line x1="${px}" y1="${py}" x2="${cx}" y2="${cy}" stroke="#30363d" stroke-width="2"/>`;
+        drawEdges(n.right);
+      }
+    }
+    drawEdges(root);
+
+    // Draw nodes
+    function drawNodes(n) {
+      if (!n) return;
+      const x = margin + pos[n.val].xi * spacing;
+      const y = 30 + pos[n.val].depth * lvlH;
+      const isNew = n.val === s.newNode;
+      const fill   = isNew ? '#1a4d35' : '#1c2330';
+      const stroke = isNew ? '#3fb97a' : '#58a6ff';
+      const tc     = isNew ? '#3fb97a' : '#e6edf3';
+      html += `<circle cx="${x}" cy="${y}" r="20" fill="${fill}" stroke="${stroke}" stroke-width="2"/>`;
+      html += `<text x="${x}" y="${y+1}" text-anchor="middle" dominant-baseline="middle" font-family="JetBrains Mono,monospace" font-size="13" font-weight="bold" fill="${tc}">${n.val}</text>`;
+      drawNodes(n.left);
+      drawNodes(n.right);
+    }
+    drawNodes(root);
+  } else {
+    html = `<text x="230" y="100" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="13" fill="#484f58">Árbol vacío — inserta el primer nodo</text>`;
+  }
+  svg.innerHTML = html;
+
+  if (seqEl) {
+    seqEl.innerHTML = 'Secuencia: ' + s.seq.map((v,i) => {
+      if (i < s.step)  return `<span class="done-num">${v}</span>`;
+      if (i === s.step) return `<span class="next-num"> → ${v} ← </span>`;
+      return `<span class="pending-num"> ${v}</span>`;
+    }).join('');
+  }
+}
+
+DEMO_STEP.bst = function() {
+  const s = demoState.bst;
+  if (s.step >= s.seq.length) { setStatus('✅ Todos los nodos insertados. Recorrido inorden: ' + s.seq.slice().sort((a,b)=>a-b).join(' → ')); return; }
+  s.newNode = s.seq[s.step];
+  setStatus(`Insertando ${s.newNode} en el BST...`);
+  s.step++;
+  renderBST();
+  setTimeout(() => { s.newNode = null; renderBST(); }, 800);
+  if (s.step >= s.seq.length) { const b=document.getElementById('main-btn'); if(b) b.textContent='Ver inorden'; }
+};
+
+// ─── DEMO: HANÓI ─────────────────────────────────────
+DEMO_INIT.hanoi = function(area) {
+  const moves = [];
+  function hanoi(n,o,a,d){ if(n===1){moves.push({disk:1,from:o,to:d});return;} hanoi(n-1,o,d,a); moves.push({disk:n,from:o,to:d}); hanoi(n-1,a,o,d); }
+  hanoi(3,'A','B','C');
+  demoState.han = {
+    poles:{A:[3,2,1],B:[],C:[]},
+    moves, idx:0, timer:null, running:false, log:[]
+  };
+  area.innerHTML = `
+    <div class="hanoi-wrap">
+      <svg id="han-svg" width="520" height="220" viewBox="0 0 520 220"></svg>
+      <div class="hanoi-move-log" id="han-log"></div>
+    </div>`;
+  renderHanoi();
+  setStatus('Presiona "Comenzar" para ver la solución animada (7 movimientos).');
+  const btn = document.getElementById('main-btn');
+  if (btn) btn.onclick = startHanoi;
+};
+
+const DISK_COLORS = {1:'#3fb97a', 2:'#58a6ff', 3:'#a371f7'};
+const POLE_X = {A:100, B:260, C:420};
+
+function renderHanoi() {
+  const s = demoState.han;
+  const svg = document.getElementById('han-svg');
+  if (!svg) return;
+  const baseY=195, poleH=160, poleW=6, diskH=22;
+  const diskW = {1:60, 2:100, 3:140};
+  let html = '';
+
+  // Base
+  html += `<rect x="20" y="${baseY}" width="480" height="8" rx="4" fill="#30363d"/>`;
+
+  // Poles
+  ['A','B','C'].forEach(p => {
+    const x = POLE_X[p];
+    html += `<rect x="${x-poleW/2}" y="${baseY-poleH}" width="${poleW}" height="${poleH}" rx="3" fill="#484f58"/>`;
+    html += `<text x="${x}" y="${baseY+22}" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="13" font-weight="bold" fill="#7d8590">${p}</text>`;
+  });
+
+  // Disks
+  ['A','B','C'].forEach(p => {
+    s.poles[p].forEach((disk,i) => {
+      const x = POLE_X[p];
+      const w = diskW[disk];
+      const y = baseY - diskH*(i+1) - 2;
+      html += `<rect x="${x-w/2}" y="${y}" width="${w}" height="${diskH-3}" rx="5" fill="${DISK_COLORS[disk]}" opacity="0.9"/>`;
+      html += `<text x="${x}" y="${y+diskH/2-2}" text-anchor="middle" dominant-baseline="middle" font-family="JetBrains Mono,monospace" font-size="11" font-weight="bold" fill="#0d1117">${disk}</text>`;
+    });
+  });
+
+  svg.innerHTML = html;
+
+  // Log
+  const logEl = document.getElementById('han-log');
+  if (logEl && s.log.length) {
+    logEl.innerHTML = s.log.map((m,i)=>`<div class="move-item ${i===s.log.length-1?'current':'done-move'}">Mov ${i+1}: Disco ${m.disk}  ${m.from} → ${m.to}</div>`).join('');
+    logEl.scrollTop = logEl.scrollHeight;
+  } else if (logEl) {
+    logEl.innerHTML = '<div style="color:var(--muted)">Los movimientos aparecerán aquí...</div>';
+  }
+}
+
+function startHanoi() {
+  const s = demoState.han;
+  if (s.running) return;
+  s.running = true;
+  const btn = document.getElementById('main-btn');
+  if (btn) btn.disabled = true;
+
+  function step() {
+    if (s.idx >= s.moves.length) {
+      s.running = false;
+      setStatus('✅ ¡Torre resuelta en 7 movimientos! Complejidad: O(2ⁿ - 1)');
+      return;
+    }
+    const m = s.moves[s.idx];
+    const disk = s.poles[m.from].pop();
+    s.poles[m.to].push(disk);
+    s.log.push(m);
+    s.idx++;
+    setStatus(`Movimiento ${s.idx}/7 — Disco ${m.disk}: ${m.from} → ${m.to}`);
+    renderHanoi();
+    setTimeout(step, 750);
+  }
+  step();
+}
+
+DEMO_STEP.hanoi = null; // uses custom button
+
+// ─── INIT ─────────────────────────────────────────────
+buildSidebar();
+selectEx('dup');
+</script>
+</body>
+</html>
